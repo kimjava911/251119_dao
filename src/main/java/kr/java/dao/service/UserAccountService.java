@@ -19,4 +19,11 @@ public class UserAccountService {
         account.setPassword(dto.getPassword());
         userAccountDAO.insertUserAccount(account);
     }
+
+    public boolean login(UserAccountDTO dto) {
+        // 존재하는지 여부를 이걸로 검색
+        UserAccount account = userAccountDAO.selectByUsername(dto.getUsername());
+        // Password 동일 여부를 탐색
+        return account.getPassword().equals(dto.getPassword());
+    }
 }

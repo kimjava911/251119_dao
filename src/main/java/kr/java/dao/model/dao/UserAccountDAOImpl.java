@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Repository
@@ -14,7 +15,27 @@ public class UserAccountDAOImpl implements UserAccountDAO {
 
     @Override
     public UserAccount selectByUsername(String username) {
-        return null;
+//        String sql = "SELECT * FROM USER_ACCOUNT WHERE username = ?";
+        String sql = """
+            SELECT account_id, username, password, created_at
+                FROM USER_ACCOUNT
+                WHERE username = ?""";
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery(); // username이 unique해서 존재한다면 무조건 1개
+            if (rs.next()) {
+                UserAccount account = new UserAccount();
+                account.setAccountId(rs.getInt("account_id"));
+                account.setUsername(rs.getString("username"));
+                account.setPassword(rs.getString("password"));
+                account.setCreatedAt(rs.getString("created_at"));
+                return account;
+            }
+            throw new RuntimeException("해당 username에 사용자가 존재하지 않습니다");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
